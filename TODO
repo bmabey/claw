@@ -1,4 +1,8 @@
 * Upgrade to Clojure 1.3
 * Break out protocols and caller functions (e.g. e-map) from implementaions.
-* Add native code wrappers
-* Documentation
+* Flesh out API more with additional use cases.
+* Add wrappers for decompositions.
+* Add native code wrappers.
+* Investigate UJMP to see if its API is flexible and powerful enough to avoid having to wrap other libraries ourselves.
+* Investigate ways to provide metadata on the matrices for column naming and other uses.
+* Documentation. :)
