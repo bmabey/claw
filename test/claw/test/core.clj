@@ -19,7 +19,7 @@
 ;; for documentation reasons.
 
 (facts #'to-seq
-  (to-seq (row-vector [1 2 3 4])) => [1 2 3 4])
+  (to-seq (row-vector [1.0 2.0 3.0 4.0])) =>  [1.0 2.0 3.0 4.0])
 
 (facts #'matrix
   (let [my-rows [[1.0 2.0 3.0]
@@ -96,7 +96,7 @@
                              [3.0 4.0]])) => 14.0
                              (map-reduce + *
                                          (row-vector [1.0 2.0 3.0])
-                                         (row-vector [1.0 2.0 3.0])) => (* (+ 1 1) (+ 2 2) (+ 3 3)))
+                                         (row-vector [1.0 2.0 3.0])) => (double (* (+ 1 1) (+ 2 2) (+ 3 3))))
 
 
 (facts #'ereduce

@@ -13,10 +13,10 @@
    [cern.colt.function.tdouble DoubleFunction DoubleDoubleFunction]
    cern.colt.matrix.tdouble.algo.DoubleSorting
    cern.jet.math.tdouble.DoubleFunctions)
-  (:use [clojure.contrib.def :only [defalias defmacro- defvar- defvar]]))
+   (:use [clojure.core.incubator :only [defmacro-]]))
 
-(defvar double-array-class (class (double-array [0.0])))
-(defvar double2d-array-class (class (into-array [ (double-array [0.0]) (double-array [0.0])])))
+(def double-array-class (class (double-array [0.0])))
+(def double2d-array-class (class (into-array [ (double-array [0.0]) (double-array [0.0])])))
 
 (defn doubles2D-array? [obj]
   (= (class obj) double2d-array-class))
@@ -87,7 +87,8 @@
   [^DoubleMatrix2D M col-selector]
   (.viewColumn M (int (col-sel->num M col-selector))))
 
-(defalias col column) ;; todo: use defalias
+;;TODO: use something like defalias (from c.c.def 1.2) to copy metadata
+(def col column)
 
 (defn row
   "Returns a view of the row at index row-num."
@@ -99,7 +100,8 @@
   [^DoubleMatrix2D M]
   (.columns M))
 
-(defalias num-cols num-columns)
+;;TODO: use something like defalias (from c.c.def 1.2) to copy metadata
+(def num-cols num-columns)
 
 (defn num-rows
   "Returns the number of rows in M"
@@ -117,7 +119,8 @@
   [M]
   (map (partial col M) (range (num-cols M))))
 
-(defalias cols columns)
+;;TODO: use something like defalias (from c.c.def 1.2) to copy metadata
+(def cols columns)
 
 (defn rows
   "Returns a lazy seq of the columns of M."
@@ -328,9 +331,11 @@
   [M col-sel]
   (-> M (sort-rows-by-column col-sel) flip-rows))
 
-(defalias sort-rows-by-col sort-rows-by-column)
+;;TODO: use something like defalias (from c.c.def 1.2) to copy metadata
+(def sort-rows-by-col sort-rows-by-column)
 
-(defalias sort-rows-by-col-desc sort-rows-by-column-desc)
+;;TODO: use something like defalias (from c.c.def 1.2) to copy metadata
+(def sort-rows-by-col-desc sort-rows-by-column-desc)
 
 (defn sort-rows-by
   "Returns a sorted view, in ascending order, of 'M' by 'f'. 'f' takes a row and returns a double."
