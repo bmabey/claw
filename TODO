@@ -1,0 +1,4 @@
+* Upgrade to Clojure 1.3
+* Break out protocols and caller functions (e.g. e-map) from implementaions.
+* Add native code wrappers
+* Documentation
