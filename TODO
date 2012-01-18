@@ -1,4 +1,4 @@
-* Upgrade to Clojure 1.3
+* Finish upgrading to Clojure 1.3 by type hinting functions so boxing doesn't happen.
 * Break out protocols and caller functions (e.g. e-map) from implementaions.
 * Flesh out API more with additional use cases.
 * Add wrappers for decompositions.
