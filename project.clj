@@ -4,4 +4,4 @@
                  [org.clojure/core.incubator "0.1.0"]
                  [incanter/parallelcolt "0.9.4"]]
   :dev-dependencies [[midje "1.3.0-RC2"]
-                     [lein-midje "1.0.4"]])
+                     [lein-midje "1.0.7"]])
