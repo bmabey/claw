@@ -1,4 +1,4 @@
-# claw - Clojure Linear Algera Workbench
+# claw - Clojure Linear Algebra Workbench
 
 [![Build Status](https://secure.travis-ci.org/bmabey/claw.png)](http://travis-ci.org/bmabey/claw)
 
