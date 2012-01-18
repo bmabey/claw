@@ -6,6 +6,10 @@ FIXME: write description
 
 FIXME: write
 
+## Contributing
+
+Clone, then run `lein deps` and `lein midje` to run the tests.
+
 ## License
 
 Copyright (C) 2012 Ben Mabey
