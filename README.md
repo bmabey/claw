@@ -2,6 +2,8 @@
 
 FIXME: write description
 
+[Google Group](http://groups.google.com/group/clj-claw)
+
 ## Usage
 
 FIXME: write
