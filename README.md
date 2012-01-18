@@ -1,5 +1,7 @@
 # claw - Clojure Linear Algera Workbench
 
+[![Build Status](https://secure.travis-ci.org/bmabey/claw.png)](http://travis-ci.org/bmabey/claw)
+
 FIXME: write description
 
 [Google Group](http://groups.google.com/group/clj-claw)
