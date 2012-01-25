@@ -29,7 +29,6 @@
 (facts #'cols->matrix
   (cols->matrix [[1 2 3] [4 5 6]]) => (matrix [[1 4]
                                                [2 5]
-
                                                [3 6]]))
 
 (facts #'rows
@@ -98,7 +97,6 @@
                                          (row-vector [1.0 2.0 3.0])
                                          (row-vector [1.0 2.0 3.0])) => (double (* (+ 1 1) (+ 2 2) (+ 3 3))))
 
-
 (facts #'ereduce
   (ereduce + (matrix [[1.0 2.0]
                       [3.0 4.0]])) => 10.0
@@ -106,7 +104,6 @@
 
 (facts #'map-to-doubles
   (map-to-doubles 5 i (identity i)) => (double-array-of [0.0 1.0 2.0 3.0 4.0]))
-
 
 (facts #'reduce-rows
   (reduce-rows + (matrix [[1 2 3]
@@ -126,7 +123,6 @@
             (matrix [[1 2]
                      [3 8]
                      [2 2]])) => (row-vector [2 5]))
-
 
 (facts "about sorting rows by column"
   (let [M (matrix [[1 2 3] [0 1 5] [3 2 10]])]
@@ -166,7 +162,6 @@
                                [3 4 5]
                                [5 6 7]])
     (conj-col a (row-vector [2])) => (throws IllegalArgumentException)))
-
 
 (facts #'weighted-mean
   (weighted-mean (row-vector [80 90]) (row-vector [20 30])) => 86.0)
