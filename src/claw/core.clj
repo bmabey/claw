@@ -109,7 +109,7 @@
   (.rows M))
 
 (defn dimension
-  "Returns the physical dimentions of the matrix as [num-rows num-cols].
+  "Returns the physical dimensions of the matrix as [num-rows num-cols].
    N.B: Not the dimenension of the basis."
   [M]
   [(num-rows M) (num-cols M)])
@@ -195,6 +195,7 @@
 (defprotocol Summable
   (sum [x] "Returns the sum of the elements"))
 
+;; Note: These will return boxed versions. :( http://groups.google.com/group/clojure/browse_thread/thread/6acff496005d7731
 (extend-protocol Summable
   DenseColumnDoubleMatrix2D
   (sum [^DenseColumnDoubleMatrix2D x]
@@ -213,16 +214,13 @@
   (if (instance? DoubleFunction f)
     f
     (reify DoubleFunction
-      ;; f will return a Double (in 1.2) which implies we are incurring
-      ;; a wrapping and de-wrapping tax for every operation!  This is where 1.3 would help.
-      ;; It would be interesting to see by how much...
-      (apply [_ val] (double (f val))))))
+      (apply [_ val] (f val)))))
 
 (defn- double-double-fn [f]
   (if (instance? DoubleDoubleFunction f)
     f
     (reify DoubleDoubleFunction
-      (apply [_ x-val y-val] (double (f x-val y-val))))))
+      (apply [_ x-val y-val] (f x-val y-val)))))
 
 (extend-protocol ElementWise
   DenseColumnDoubleMatrix2D
@@ -241,8 +239,6 @@
        (.aggregate x ^DoubleDoubleFunction (double-double-fn reduce-fn) ^DoubleFunction (double-fn map-fn)))
     ([^DenseColumnDoubleMatrix2D x ^DenseColumnDoubleMatrix2D y map-fn reduce-fn]
        (.aggregate x y ^DoubleDoubleFunction (double-double-fn reduce-fn) ^DoubleDoubleFunction (double-double-fn map-fn))))
-  (sum [^DenseColumnDoubleMatrix2D x]
-    (.zSum x))
 
   DenseDoubleMatrix1D
   (map-elements
@@ -260,9 +256,6 @@
        (.aggregate x ^DoubleDoubleFunction (double-double-fn reduce-fn) ^DoubleFunction (double-fn map-fn)))
     ([^DenseDoubleMatrix1D x ^DenseDoubleMatrix1D y map-fn reduce-fn]
        (.aggregate x y ^DoubleDoubleFunction (double-double-fn reduce-fn) ^DoubleDoubleFunction (double-double-fn map-fn))))
-   (sum [^DenseDoubleMatrix1D x]
-    (.zSum x))
-
 
   SelectedDenseDoubleMatrix1D
   (map-elements
@@ -279,9 +272,7 @@
     ([^SelectedDenseDoubleMatrix1D x map-fn reduce-fn]
        (.aggregate x ^DoubleDoubleFunction (double-double-fn reduce-fn) ^DoubleFunction (double-fn map-fn)))
     ([^SelectedDenseDoubleMatrix1D x ^SelectedDenseDoubleMatrix1D y map-fn reduce-fn]
-       (.aggregate x y ^DoubleDoubleFunction (double-double-fn reduce-fn) ^DoubleDoubleFunction (double-double-fn map-fn))))
-   (sum [^SelectedDenseDoubleMatrix1D x]
-    (.zSum x)))
+       (.aggregate x y ^DoubleDoubleFunction (double-double-fn reduce-fn) ^DoubleDoubleFunction (double-double-fn map-fn)))))
 
 (defn emap
   ([f x] (map-elements x f))
@@ -292,26 +283,23 @@
   ([f x y] (map-elements! x y f)))
 
 (defn map-reduce
-  ([map-fn reduce-fn x y]
+  (^double [map-fn reduce-fn x y]
      (map-reduce-elements x y map-fn reduce-fn))
-  ([map-fn reduce-fn x]
+  (^double [map-fn reduce-fn x]
      (map-reduce-elements x map-fn reduce-fn)))
 
-(defn ereduce [f x]
+(defn ereduce ^double [f x]
   ;; I'm using the colt identity fn to avoid wrapping from occuring
   (map-reduce (DoubleFunctions/identity) f x))
 
+;; (with-meta (double-array ~how-many) {:tag 'doubles})
+
 (defmacro map-to-doubles
-  ([how-many idx vals expr]
-      `(let [~vals (double-array ~how-many)]
+  [how-many idx expr]
+  `(let [vals# (double-array ~how-many)]
          (dotimes [~idx ~how-many]
-           (aset ~vals ~idx (double ~expr))) ;; double may not be needed in 1.3
-         ~vals))
-  ([how-many idx expr]
-      `(let [vals# (double-array ~how-many)]
-         (dotimes [~idx ~how-many]
-           (aset vals# ~idx (double ~expr))) ;; double may not be needed in 1.3
-         vals#)))
+           (aset vals# ~idx ~expr))
+         vals#))
 
 (defn reduce-rows [f m]
   ;; TODO: even with the array creation the Double tax is still happening until we move to 1.3
@@ -321,10 +309,10 @@
   (row-vector (map-to-doubles (num-cols m) i (ereduce f (col m i)))))
 
 (defn map-rows [f m]
-  (row-vector (map-to-doubles (num-rows m) i (f (row m i)))))
+  (row-vector (map-to-doubles (num-rows m) i (double (f (row m i)))))) ;; double needed to avoid reflection
 
 (defn map-cols [f m]
-  (row-vector (map-to-doubles (num-cols m) i (f (col m i)))))
+  (row-vector (map-to-doubles (num-cols m) i (double (f (col m i)))))) ;; double needed to avoid reflection
 
 (defn sort-rows-by-column-desc
   "Returns a sorted view, in descending order, of the rows by the given column selector."
@@ -359,8 +347,7 @@
      (extend-type SelectedDenseDoubleMatrix1D ~@body)
      (extend-type DenseColumnDoubleMatrix2D ~@body)))
 
-;; The cern functions return primitives unlike cljojure 1.2. functions which wrap primitives.
-;; These versions are also unchecked.
+;; The cern functions return primitives and are unchecked.
 (defonce colt-plus (DoubleFunctions/plus))
 (defonce colt-minus (DoubleFunctions/minus))
 (defonce colt-mult (DoubleFunctions/mult))
@@ -390,8 +377,8 @@
          (recur (unchecked-inc i))))
       vals)))
 
-(defn mean [x]
-  (if (= 0 (size x))
+(defn mean ^double [x]
+  (if (== 0 (size x))
     0.0
     (/ (sum x) (size x))))
 
@@ -416,21 +403,21 @@
       (doto (.viewPart x 0 a-cols a-rows 1) (.assign ^"[D" (to-array b)))
       x)))
 
-(defn weighted-mean [x weights]
-  ;;could be (map-reduce * + x weights), but again, the cern functions are unchecked and don't wrap into Doubles
-  (if (= 0 (size x))
+(defn weighted-mean ^double [x weights]
+  (if (== 0 (size x))
     0.0
     (/ (map-reduce colt-mult colt-plus x weights) (sum weights))))
 
 (defn map-mean
   "Maps with 'f' and takes the mean of the resulting values. Internaly a map-reduce is used for efficiency."
-   ([f x y]
+   (^double [f x y]
       (/ (map-reduce f colt-plus x y) (size x)))
-   ([f x]
+   (^double [f x]
       (/ (map-reduce f colt-plus x) (size x))))
 
-;; TODO: using the matrix factories would probably be faster...
-(defn rand-matrix [m n]
-  (let [rand-row #(take n (repeatedly rand))]
-    (matrix (take m (repeatedly rand-row)))))
-
+;; TODO: using the matrix factories would be faster...
+(defn rand-matrix
+  ([m] (rand-matrix m m))
+  ([m n]
+      (let [rand-row #(take n (repeatedly rand))]
+        (matrix (take m (repeatedly rand-row))))))

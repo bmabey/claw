@@ -103,7 +103,9 @@
                       (ereduce + (row-vector [1.0 2.0 3.0])) => 6.0)
 
 (facts #'map-to-doubles
-  (map-to-doubles 5 i (identity i)) => (double-array-of [0.0 1.0 2.0 3.0 4.0]))
+  (map-to-doubles 5 i (double (identity i))) => (double-array-of [0.0 1.0 2.0 3.0 4.0])
+  (map-to-doubles 5 i (double (inc i))) => (double-array-of [1.0 2.0 3.0 4.0 5.0])
+  )
 
 (facts #'reduce-rows
   (reduce-rows + (matrix [[1 2 3]
