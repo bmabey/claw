@@ -1,4 +1,4 @@
-(defproject claw "1.0.0-SNAPSHOT"
+(defproject claw "0.1.0"
   :description "claw - Clojure Linear Algebra Workbench"
   :dependencies [[org.clojure/clojure "1.3.0"]
                  [org.clojure/core.incubator "0.1.0"]
